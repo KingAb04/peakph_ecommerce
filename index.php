@@ -1,27 +1,32 @@
 <?php
 session_start();
+
+// If already logged in, redirect to admin.php
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    header("Location: admin.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PeakPH: Camping Gears and More</title>
 
-  <!-- =============================== FONTS & ICONS =============================== -->
+  <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
-  <!-- =============================== GLOBAL STYLES =============================== -->
-  <link rel="stylesheet" href="Assets/Css/Global.css" />
+  <!-- Global Styles -->
+  <link rel="stylesheet" href="Css/Global.css" />
 
-  <!-- =============================== GOOGLE API =============================== -->
+  <!-- Google API -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
-  <!-- =============================== HEADER =============================== -->
+  <!-- HEADER -->
   <header>
     <div class="top-navbar">
       <div class="brand">
@@ -36,22 +41,17 @@ session_start();
       </div>
 
       <div class="top-icons">
-        <?php if (isset($_SESSION["user"])): ?>
-          <div class="user-info">
-            <span><?php echo htmlspecialchars($_SESSION["user"]); ?></span>
-            <a href="logout.php">Logout</a>
-          </div>
-        <?php else: ?>
-          <button id="loginIcon" class="login-btn">
-            <i class="bi bi-person"></i>
-            <span>Login</span>
-          </button>
-        <?php endif; ?>
-
-        <i class="bi bi-cart"><span class="cart-count">0</span></i>
+        <button id="loginIcon" class="login-btn">
+          <i class="bi bi-person"></i>
+          <span>Login</span>
+        </button>
+        <i class="bi bi-cart">
+          <span class="cart-count">0</span>
+        </i>
       </div>
     </div>
 
+    <!-- Bottom Navbar -->
     <div class="bottom-navbar">
       <nav>
         <a href="#shop">Shop</a>
@@ -62,10 +62,10 @@ session_start();
     </div>
   </header>
 
-  <!-- =============================== HERO =============================== -->
+  <!-- HERO -->
   <div class="hero">
     <div class="slides" id="slides">
-      <div class="slide deals-slide" style="background-image: url('Assets/Carousel_Picts/DeaksV2.png')">
+      <div class="slide deals-slide" id="mainBanner" style="background-image: url('Assets/Carousel_Picts/DeaksV2.png')">
         <a href="#shop" class="shop-btn">Shop Now</a>
       </div>
       <div class="slide" style="background-image: url('landing image/landing1.png')"></div>
@@ -75,11 +75,12 @@ session_start();
       <div class="slide" style="background-image: url('landing image/landing2.jpg')"></div>
       <div class="slide" style="background-image: url('slider5.jpg')"></div>
     </div>
+    
     <button class="arrow prev" onclick="moveSlide(-1)">‹</button>
     <button class="arrow next" onclick="moveSlide(1)">›</button>
   </div>
 
-  <!-- =============================== MID CONTAINER =============================== -->
+  <!-- MID CONTAINER -->
   <div class="mid-gallery">
     <button class="gallery-arrow prev">‹</button>
     <div class="gallery-track" id="gallery-track">
@@ -107,19 +108,11 @@ session_start();
         <img src="Assets/Gallery_Images/Camping Stove Sample.png" alt="Camping Stove" />
         <p>Camping Stove</p>
       </div>
-      <div class="gallery-item">
-        <img src="" alt="Camping Stove" />
-        <p>Camping Stove</p>
-      </div>
-      <div class="gallery-item">
-        <img src="" alt="Camping Stove" />
-        <p>Camping Stove</p>
-      </div>
     </div>
     <button class="gallery-arrow next">›</button>
   </div>
 
-  <!-- =============================== NEW ARRIVALS =============================== -->
+  <!-- NEW ARRIVALS -->
   <section class="new-arrivals">
     <h2 style="color: white">New Arrivals</h2>
     <div class="arrivals-grid">
@@ -150,7 +143,7 @@ session_start();
     </div>
   </section>
 
-  <!-- =============================== NEWSLETTER SIGNUP =============================== -->
+  <!-- NEWSLETTER SIGNUP -->
   <section class="newsletter">
     <div class="newsletter-content">
       <h2>Join Our Adventure Club</h2>
@@ -162,7 +155,7 @@ session_start();
     </div>
   </section>
 
-  <!-- =============================== MAIN CATEGORIES =============================== -->
+  <!-- MAIN CATEGORIES -->
   <section class="Maincategory">
     <a href="/tents-tarpaulins" class="Maincategory-link">
       <div class="Maincategory" style="background-image: url('Assets/Main_Category/tent.jpg')"></div>
@@ -180,227 +173,59 @@ session_start();
     </a>
   </section>
 
-  <!-- Login Modal -->
-  <div id="authModal" class="login-modal <?php echo $showLoginModal ? 'active' : ''; ?>">
-
+  <!-- LOGIN MODAL -->
+  <div id="authModal" class="login-modal">
     <div class="login-card">
       <div class="login-left">
         <h2>Log In</h2>
+
+        <?php if (isset($_GET['login']) && $_GET['login'] === 'failed'): ?>
+          <p style="color: red;">Invalid email or password</p>
+        <?php endif; ?>
+
         <p class="welcome-text">Welcome back! Please enter your details</p>
 
-        <form id="emailLoginForm" method="POST" action="index.php">
-          <input type="hidden" name="login" value="1">
-
-          <!-- ERROR MESSAGE -->
-          <?php if (!empty($error)) : ?>
-            <div id="loginError" class="login-error">
-              <?php echo htmlspecialchars($error); ?>
-            </div>
-          <?php endif; ?>
-
-
+        <form id="emailLoginForm" method="POST" action="login.php">
           <label>Email</label>
           <input type="email" name="email" placeholder="Enter your email" required />
 
           <label>Password</label>
           <div class="password-field">
             <input type="password" name="password" placeholder="Enter your password" required />
-            <i class="bi bi-eye toggle-password"></i>
+            <i class="bi bi-eye"></i>
           </div>
 
           <a href="#" class="forgot-password">Forgot password?</a>
-          <button type="submit" class="login-btn-main">Log In</button>
-        </form>
+          <button type="submit" class="login-btn-main">Log in</button>
 
-        </form>
+          <div class="or-divider"><span>Or Continue With</span></div>
 
-        <p class="signup-text">
-          Don't have an account?
-          <a href="#" id="toSignup">Sign up </a>
-        </p>
-      </div>
-
-      <div class="login-right">
-        <div class="overlay"><img src="Assets/Carousel_Picts/loginpict.jpg"
-            alt="Login Image"
-            style="width: 100%; height: 100%; object-fit: cover;" /></div>
-      </div>
-
-      <button class="close-btn" id="closeModal">&times;</button>
-    </div>
-  </div>
-
-  <!-- Signup Modal -->
-  <div id="signupModal" class="login-modal">
-    <div class="login-card">
-      <div class="login-left">
-        <h2>Sign Up</h2>
-        <p class="welcome-text">Create your account</p>
-
-        <form id="signupForm" method="POST">
-          <div id="signupAlert" style="color:red; margin-bottom:10px;"></div>
-
-          <label for="username">Username</label>
-          <input type="text" name="username" id="username" required />
-
-          <label for="email">Email</label>
-          <input type="email" name="email" id="email" required />
-
-          <label for="password">Password</label>
-          <div class="password-field">
-            <input type="password" name="password" id="password" required />
-            <i class="bi bi-eye-slash toggle-password"></i>
+          <div class="social-login">
+            <button type="button" class="google-btn">
+              <i class="bi bi-google"></i> Google
+            </button>
+            <button type="button" class="facebook-btn">
+              <i class="bi bi-facebook"></i> Facebook
+            </button>
           </div>
-
-          <button type="submit" class="login-btn-main">Sign Up</button>
         </form>
 
-
         <p class="signup-text">
-          Already have an account?
-          <a href="#" id="toLogin">Login </a>
+          Don't have an account? <a href="#">Sign up</a>
         </p>
       </div>
 
+      <button class="close-btn" id="closeModal">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
       <div class="login-right">
-        <div class="overlay"><img src="Assets/Carousel_Picts/loginpict.jpg"
-            alt="Login Image"
-            style="width: 100%; height: 100%; object-fit: cover;" /></div>
+        <div class="overlay"></div>
       </div>
-
-      <button class="close-btn" id="closeSignup">&times;</button>
     </div>
   </div>
 
-
-  <!-- =============================== MEGA MENUS =============================== -->
-  <!-- =============================== TENTS & TARPAULINS =============================== -->
-  <div id="tentMenu" class="mega-menu">
-    <div class="mega-content">
-      <div class="mega-left">
-        <h3>Main Categories</h3>
-        <ul>
-          <li onclick="showSubMenu('tent')">Tent</li>
-          <li onclick="showSubMenu('big-tent')">Big Tent</li>
-          <li onclick="showSubMenu('tarpaulin')">Tarpaulin</li>
-        </ul>
-      </div>
-
-      <div class="mega-right" id="tent-sub">
-        <h3>Tents</h3>
-        <ul>
-          <li>2-Person Tent</li>
-          <li>4-Person Tent</li>
-          <li>Camping Tent</li>
-        </ul>
-      </div>
-
-      <div class="mega-right hidden" id="big-tent-sub">
-        <h3>Big Tents</h3>
-        <ul>
-          <li>Party Tent</li>
-          <li>Event Tent</li>
-          <li>Large Camping Tent</li>
-        </ul>
-      </div>
-
-      <div class="mega-right hidden" id="tarpaulin-sub">
-        <h3>Tarpaulins</h3>
-        <ul>
-          <li>Waterproof Tarp</li>
-          <li>Heavy Duty Tarp</li>
-          <li>UV Resistant Tarp</li>
-        </ul>
-      </div>
-    </div>
-    <button class="close-mega" onclick="closeMegaMenu('tentMenu')">✕</button>
-  </div>
-
-  <!-- =============================== COOKING EQUIPMENT =============================== -->
-  <div id="cookingMenu" class="mega-menu">
-    <div class="mega-content">
-      <div class="mega-left">
-        <h3>Main Categories</h3>
-        <ul>
-          <li onclick="showCookingSub('stove')">Stoves</li>
-          <li onclick="showCookingSub('cookware')">Cookware</li>
-          <li onclick="showCookingSub('utensils')">Utensils</li>
-        </ul>
-      </div>
-
-      <div class="mega-right" id="stove-sub">
-        <h3>Stoves</h3>
-        <ul>
-          <li>Portable Gas Stove</li>
-          <li>Backpacking Stove</li>
-          <li>Wood Burning Stove</li>
-        </ul>
-      </div>
-
-      <div class="mega-right hidden" id="cookware-sub">
-        <h3>Cookware</h3>
-        <ul>
-          <li>Cooking Pots</li>
-          <li>Pans</li>
-          <li>Kettle</li>
-        </ul>
-      </div>
-
-      <div class="mega-right hidden" id="utensils-sub">
-        <h3>Utensils</h3>
-        <ul>
-          <li>Camping Spoon & Fork</li>
-          <li>Multi-tool</li>
-          <li>Knives</li>
-        </ul>
-      </div>
-    </div>
-    <button class="close-mega" onclick="closeMegaMenu('cookingMenu')">✕</button>
-  </div>
-
-  <!-- =============================== SURVIVAL EQUIPMENT =============================== -->
-  <div id="survivalMenu" class="mega-menu">
-    <div class="mega-content">
-      <div class="mega-left">
-        <h3>Main Categories</h3>
-        <ul>
-          <li onclick="showSurvivalSub('fire')">Fire Starters</li>
-          <li onclick="showSurvivalSub('tools')">Tools</li>
-          <li onclick="showSurvivalSub('firstaid')">First Aid</li>
-        </ul>
-      </div>
-
-      <div class="mega-right" id="fire-sub">
-        <h3>Fire Starters</h3>
-        <ul>
-          <li>Matches</li>
-          <li>Ferro Rod</li>
-          <li>Fire Striker</li>
-        </ul>
-      </div>
-
-      <div class="mega-right hidden" id="tools-sub">
-        <h3>Tools</h3>
-        <ul>
-          <li>Survival Knife</li>
-          <li>Hatchet</li>
-          <li>Multi-tool</li>
-        </ul>
-      </div>
-
-      <div class="mega-right hidden" id="firstaid-sub">
-        <h3>First Aid</h3>
-        <ul>
-          <li>First Aid Kit</li>
-          <li>Emergency Blanket</li>
-          <li>Medical Supplies</li>
-        </ul>
-      </div>
-    </div>
-    <button class="close-mega" onclick="closeMegaMenu('survivalMenu')">✕</button>
-  </div>
-
-  <!-- =============================== CHATBOT =============================== -->
+  <!-- CHATBOT -->
   <div id="chatbot-icon">💬</div>
   <div id="chatbot-container" class="hidden">
     <div id="chatbot-header">
@@ -416,21 +241,22 @@ session_start();
     </div>
   </div>
 
-  <!-- =============================== FOOTER =============================== -->
+  <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-top">
       <div class="social-section">
         <p class="follow-text">Follow Us</p>
         <div class="social-icons">
-          <a href="#"><i class="bi bi-facebook"></i></a>
-          <a href="#"><i class="bi bi-instagram"></i></a>
-          <a href="#"><i class="bi bi-youtube"></i></a>
-          <a href="#"><i class="bi bi-tiktok"></i></a>
+          <a href="https://facebook.com/yourpage" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
+          <a href="https://instagram.com/yourpage" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+          <a href="https://youtube.com/yourpage" target="_blank" rel="noopener"><i class="bi bi-youtube"></i></a>
+          <a href="https://tiktok.com/@yourpage" target="_blank" rel="noopener"><i class="bi bi-tiktok"></i></a>
         </div>
       </div>
     </div>
 
     <hr />
+
     <div class="footer-links">
       <div>
         <h4>CUSTOMER SERVICE</h4>
@@ -457,19 +283,27 @@ session_start();
         <a href="#">Sustainability</a>
         <a href="#">Certificate of Registration</a>
       </div>
+      <div>
+        <h4>MORE</h4>
+        <a href="#">Membership</a>
+        <a href="#">Share Your Ideas</a>
+        <a href="#">Product Recall</a>
+      </div>
+      <div>
+        <h4>JOIN US</h4>
+        <a href="#">climbers</a>
+      </div>
     </div>
 
     <hr />
+
     <div class="footer-bottom">
       <small>© 2025 Peak. All rights reserved.</small>
     </div>
   </footer>
 
-
-  <!-- =============================== SCRIPTS =============================== -->
-  <script src="Javascript/JavaScript.js"></script>
-  <script src="Javascript/chatbot.js"></script>
-
+  <!-- SCRIPTS -->
+  <script src="Js/JavaScript.js"></script>
+  <script src="Js/chatbot.js"></script>
 </body>
-
 </html>
